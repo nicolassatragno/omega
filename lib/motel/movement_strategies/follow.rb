@@ -69,7 +69,7 @@ class Follow < MovementStrategy
      attr_from_args args, :distance => nil, :speed => nil,
                           :tracked_location_id     => nil,
                           :point_to_target         => false,
-                          :rotation_speed          => 1
+                          :rotation_speed          => nil
      # If we have to point to the target, do so before moving
      @adjusting_bearing = @point_to_target
      @on_target = false # Asume we haven't arrived at the target at first
@@ -87,9 +87,13 @@ class Follow < MovementStrategy
    # * speed is a valid numeric > 0
    # * distance is a valid numeric > 0
    def valid?
-     !@tracked_location_id.nil? &&
-     @speed.numeric? && @speed > 0 &&
-     @distance.numeric? && @distance > 0
+     v = !@tracked_location_id.nil? &&
+         @speed.numeric? && @speed > 0 &&
+         @distance.numeric? && @distance > 0
+     if @point_to_target && v
+       v = @rotation_speed.numeric?
+     end
+     v
    end
 
    # Implementation of {Motel::MovementStrategy#move}

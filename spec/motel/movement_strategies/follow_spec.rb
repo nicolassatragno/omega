@@ -80,11 +80,32 @@ describe Follow do
       end
     end
 
-    context "follow is valid" do
+    context "rotation speed is invalid" do
+      it "returns false" do
+        f = Follow.new :tracked_location_id => 42,
+                       :speed => 10,
+                       :distance => 10,
+                       :point_to_target => true
+        f.should_not be_valid
+      end
+    end
+
+    context "non rotating follow is valid" do
       it "returns true" do
         f = Follow.new :tracked_location_id => 42,
                        :speed => 10,
                        :distance => 10
+        f.should be_valid
+      end
+    end
+
+    context "rotating follow is valid" do
+      it "returns true" do
+        f = Follow.new :tracked_location_id => 42,
+                       :speed => 10,
+                       :distance => 10,
+                       :point_to_target => true,
+                       :rotation_speed => 1
         f.should be_valid
       end
     end
