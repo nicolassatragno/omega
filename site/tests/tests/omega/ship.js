@@ -276,13 +276,10 @@ describe("Omega.Ship", function(){
 
   describe("#context_action", function(){
     var move_objects;
+    var follow_objects;
 
     before(function(){
       move_objects = [
-        new Omega.Ship({id : 'ship2', system_id : 'sys1',
-             location  : new Omega.Location({x:12,y:53,z:16})}),
-        new Omega.Planet({id : 'planet_1', system_id : 'sys1',
-             location  : new Omega.Location({x:16,y:35,z:76})}),
         new Omega.Asteroid({id : 'ast1',
              location  : new Omega.Location({x:25,y:30,z:66})}),
         new Omega.JumpGate({id : 'jg1',
@@ -291,11 +288,18 @@ describe("Omega.Ship", function(){
              location  : new Omega.Location({x:-5,y:3,z:-86})})
       ];
 
+      follow_objects = [
+        new Omega.Ship({id : 'ship2', system_id : 'sys1',
+             location  : new Omega.Location({x:12,y:53,z:16})}),
+        new Omega.Planet({id : 'planet_1', system_id : 'sys1',
+             location  : new Omega.Location({x:16,y:35,z:76})})
+      ];
+
       page.canvas.root = new Omega.SolarSystem({id : 'sys1',
-                           children : move_objects});
+                           children : $.extend({}, move_objects, follow_objects)});
     });
 
-    it("invokes move command on ships/stations/asteroids/planets/jump_gates", function(){
+    it("invokes move command on stations/asteroids/jump_gates", function(){
       var offset = Omega.Config.movement_offset;
       var move   = sinon.spy(ship, '_move');
 
@@ -311,6 +315,15 @@ describe("Omega.Ship", function(){
           assert(dist).isLessThan(offset.max);
           assert(dist).isGreaterThan(offset.min);
         });
+      });
+    });
+
+    it("invokes follow command on ships/planets", function(){
+      var follow = sinon.spy(ship, '_follow')
+
+      follow_objects.forEach(function(entity){
+        ship.context_action(entity, page);
+        sinon.assert.calledWith(follow, page, entity.id);
       });
     });
 
